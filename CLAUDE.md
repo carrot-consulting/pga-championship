@@ -37,6 +37,7 @@ Agents live in `.claude/agents/`. Each agent is a markdown file with YAML frontm
 
 **Active agents:**
 - `research` -- Brave Search research agent, runs on Haiku for speed and cost efficiency
+- `activity-log` -- End-of-day session summarizer, reads git log and decisions, runs on Haiku
 
 ---
 
@@ -48,6 +49,8 @@ Skills are built organically as recurring workflows emerge.
 
 **Active skills:**
 - `research` -- Context-aware research using Brave Search
+- `activity-log` -- End-of-day summary from git log and decisions, saved to `archives/activity-log/`
+- `security-review` -- Scan latest activity log for security risks, rated Critical/High/Medium/Low, saved to `archives/security-review/`
 
 **Skills Backlog** (build these over time):
 - `policy-to-process-diagram` -- Convert policy/procedure docs into process diagrams
@@ -59,13 +62,7 @@ Skills are built organically as recurring workflows emerge.
 
 ## Git & Security
 
-Before any `git push`, always scan staged files for sensitive data:
-- Personal information (full name in context, financial details, travel plans)
-- API keys, tokens, credentials
-- Private research outputs (see `research-output/` -- gitignored)
-- Anything that would be inappropriate in a public repo
-
-Flag findings and confirm with Alex before proceeding.
+Before any `git push`, the pre-push security check must be run. See `.claude/rules/git-prepush-check.md`.
 
 ---
 

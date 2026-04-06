@@ -8,14 +8,18 @@ Use this skill when Alex asks for research, information gathering, or wants to u
 
 ## Setup
 
-Brave Search requires an API key exported in your shell environment:
+Brave Search requires an API key available in your shell environment.
+
+**Source of truth:** `.env` in this workspace holds the key.
+
+**To activate:** Export it in `~/.zshrc` so Claude Code inherits it at startup:
 
 ```bash
-# Add to ~/.zshrc (one time)
+# Add to ~/.zshrc (one time), then run: source ~/.zshrc
 export BRAVE_API_KEY=your_key_here
 ```
 
-Get your API key at brave.com/search/api. The key itself lives in `.env` in this workspace.
+The key must be exported in your shell -- `.mcp.json` does not contain it.
 
 ---
 

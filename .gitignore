@@ -4,3 +4,6 @@ CLAUDE.local.md
 node_modules/
 .mcp.json
 research-output/
+archives/activity-log/
+archives/security-review/
+.DS_Store
