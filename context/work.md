@@ -27,3 +27,9 @@
 ## Frameworks
 
 ISO 27001, SOC 2 Type 2, NIST
+
+## Brand Assets
+
+Logos are in `brand-assets/`:
+- `carrot-consulting-logo-coloured.jpg` -- primary colour logo
+- `carrot-consultin-logo-white.png` -- white version (for dark backgrounds)

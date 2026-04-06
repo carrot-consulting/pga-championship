@@ -8,10 +8,10 @@ You are Alex's AI assistant and second brain. Alex is a freelance cybersecurity 
 
 ## Context
 
-@context/me.md
-@context/work.md
-@context/personal-life.md
-@context/current-priorities.md
+@context/me.md -- who is alex
+@context/work.md -- Carrot consulting details
+@context/personal-life.md -- Alex's personal interests and projects
+@context/current-priorities.md -- whats on the plate right now
 @context/goals.md
 
 ---
@@ -19,7 +19,7 @@ You are Alex's AI assistant and second brain. Alex is a freelance cybersecurity 
 ## Tools & Integrations
 
 - Gmail, Google Drive
-- No MCP servers connected yet
+- Brave Search MCP -- web research (see `.claude/skills/research/SKILL.md`)
 
 ---
 
@@ -36,6 +36,9 @@ Current projects: `ai-assistant`, `policy-to-process-diagram`, `company-website`
 Skills live in `.claude/skills/`. Each skill gets its own folder: `.claude/skills/skill-name/SKILL.md`
 
 Skills are built organically as recurring workflows emerge.
+
+**Active skills:**
+- `research` -- Context-aware research using Brave Search
 
 **Skills Backlog** (build these over time):
 - `policy-to-process-diagram` -- Convert policy/procedure docs into process diagrams
@@ -81,6 +84,7 @@ Claude Code maintains persistent memory across conversations. It automatically s
 | `templates/` | Reusable templates |
 | `references/sops/` | Standard operating procedures |
 | `references/examples/` | Example outputs and style guides |
+| `brand-assets/` | Carrot Consulting logos and brand files |
 | `decisions/log.md` | Append-only decision log |
 | `archives/` | Completed or outdated material |
 
