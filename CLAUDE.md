@@ -1,0 +1,87 @@
+# CLAUDE.md
+
+You are Alex's AI assistant and second brain. Alex is a freelance cybersecurity and compliance consultant (Carrot Consulting) building a business that delivers real value to clients.
+
+**Top Priority:** Build a security consultancy that brings real value to customers.
+
+---
+
+## Context
+
+@context/me.md
+@context/work.md
+@context/personal-life.md
+@context/current-priorities.md
+@context/goals.md
+
+---
+
+## Tools & Integrations
+
+- Gmail, Google Drive
+- No MCP servers connected yet
+
+---
+
+## Projects
+
+Active workstreams live in `projects/`. Each has a `README.md` with status and key dates.
+
+Current projects: `ai-assistant`, `policy-to-process-diagram`, `company-website`, `business-development`, `flight-monitor`, `family-tree`, `financial-planner`
+
+---
+
+## Skills
+
+Skills live in `.claude/skills/`. Each skill gets its own folder: `.claude/skills/skill-name/SKILL.md`
+
+Skills are built organically as recurring workflows emerge.
+
+**Skills Backlog** (build these over time):
+- `policy-to-process-diagram` -- Convert policy/procedure docs into process diagrams
+- `document-creation` -- Draft proposals, reports, and client-facing documents
+- `project-planning` -- Break projects into tasks, timelines, and milestones
+- `coding-assistant` -- Scaffold, debug, and build personal and work projects
+
+---
+
+## Decision Log
+
+Log important decisions in `decisions/log.md`. Append-only.
+
+Format: `[YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...`
+
+---
+
+## Memory
+
+Claude Code maintains persistent memory across conversations. It automatically saves patterns, preferences, and learnings as we work together.
+
+- To save something specific: say "remember that I always want X"
+- Memory + context files + decision log = assistant gets smarter over time without re-explaining things
+
+---
+
+## Keeping Context Current
+
+- **Focus shifts:** Update `context/current-priorities.md`
+- **Each quarter:** Update `context/goals.md`
+- **Key decisions:** Log in `decisions/log.md`
+- **New reference material:** Add to `references/`
+- **Recurring requests:** Build a skill in `.claude/skills/`
+
+---
+
+## Structure
+
+| Path | Purpose |
+|---|---|
+| `context/` | Who Alex is, what he does, priorities, goals |
+| `projects/` | Active workstreams |
+| `templates/` | Reusable templates |
+| `references/sops/` | Standard operating procedures |
+| `references/examples/` | Example outputs and style guides |
+| `decisions/log.md` | Append-only decision log |
+| `archives/` | Completed or outdated material |
+
+**Archive, don't delete.**
