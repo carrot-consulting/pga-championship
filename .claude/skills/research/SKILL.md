@@ -30,15 +30,20 @@ Get your API key at brave.com/search/api. The key itself lives in `.env` in this
 
 ## Step 1: Clarify Before Searching (Always)
 
-Before running any search, ask these three questions in a single message:
+Before running any search, ask these four questions in a single message:
 
 1. **What exactly do you want to know?** (restate the question to confirm understanding)
 2. **What's this for?** (client meeting, personal decision, project planning, general curiosity, etc.)
 3. **Quick answer or deep dive?**
    - Quick: fast summary, 1-3 searches
    - Deep dive: thorough, cross-referenced, structured report
+4. **Opus or Haiku?**
+   - Opus: current model, best reasoning and synthesis (default)
+   - Haiku: faster and cheaper, good for straightforward lookups
 
 Wait for answers before proceeding.
+
+**If the user chooses Haiku:** delegate the entire task to the research agent by invoking it with the full context (topic, purpose, depth). Do not run the search yourself.
 
 ---
 
@@ -100,6 +105,13 @@ Concrete next steps. Not "consider looking into X" -- specific actions Alex can 
 
 **5. Sources**
 List of URLs used.
+
+**After producing the deep dive output, save it to a file:**
+
+- Directory: `research-output/` in the workspace root (create if it doesn't exist)
+- Filename: `YYYY-MM-DD-<slug>.md` where slug is a 3-5 word kebab-case summary of the topic (e.g. `2026-04-05-iso27001-audit-readiness.md`)
+- File content: the full deep dive output in markdown, with a `# Title` heading at the top and `_Date: YYYY-MM-DD_` on the second line
+- Tell the user the file path after saving
 
 ---
 
