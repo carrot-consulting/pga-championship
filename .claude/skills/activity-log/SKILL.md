@@ -1,6 +1,6 @@
 # Skill: Activity Log
 
-Generate an end-of-day summary of everything done in this session, sourced from git history and context files.
+Generate an end-of-day summary of everything done in this session, sourced from git history, recently modified files (including gitignored directories), and context files.
 
 ---
 
@@ -30,6 +30,19 @@ git -C /Users/alexsimonin/Desktop/max log --since="midnight" --pretty=format:"%h
 ```
 
 If no commits exist today, note that and still produce a summary from context.
+
+### Step 1b: Scan for recently modified files (including gitignored)
+
+Run the following to find any files modified today outside of git tracking:
+
+```bash
+find /Users/alexsimonin/Desktop/max -newermt "$(date '+%Y-%m-%d') 00:00:00" \
+  -not -path "*/.git/*" \
+  -not -name ".DS_Store" \
+  -type f
+```
+
+Cross-reference this list against the git results. Any files that appear here but not in git are untracked or gitignored — include them in the log under a separate **Untracked / Gitignored Changes** section. Common examples: `research-output/`, local config files, PDFs added to project folders.
 
 ### Step 2: Load context
 

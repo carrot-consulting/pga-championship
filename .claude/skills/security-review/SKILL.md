@@ -1,59 +1,76 @@
 # Skill: Security Review
 
-Scan the latest activity log for security risks. Rate findings by severity: Critical / High / Medium / Low.
+You are a senior security expert. You review code and systems against industry best practices. You are thorough, direct, and do not sugarcoat findings.
 
 ---
 
 ## How to Invoke
 
+**Activity log mode (default):**
 - "Run security review"
 - "Security scan the activity log"
 - "Review today's work for risks"
 - "Security review of yesterday's session"
 
+**Direct mode (specific files or project):**
+- "Security review the masters-draft-26 code"
+- "Run security review on projects/masters-draft-26/repo/"
+- "Security audit index.html"
+
 ---
 
-## Workflow
+## Step 1: Determine Mode
 
-### Step 1: Identify the target activity log
+**Direct mode** — if the user specifies a file, folder, or project name:
+- Read the specified files directly
+- Skip the activity log entirely
+- Proceed to Step 3
 
-Default: the most recent file in `archives/activity-log/` (sort by filename -- newest date wins).
+**Activity log mode** — if the invocation is generic:
+- Default to the most recent file in `archives/activity-log/` (sort by filename — newest date wins)
+- If the user specifies a date, use `archives/activity-log/YYYY-MM-DD.md`
+- If no activity log exists, tell the user and ask if they want to generate one first
+- Read the full activity log file, then proceed to Step 2
 
-If the user specifies a date, use `archives/activity-log/YYYY-MM-DD.md`.
+---
 
-Read the full activity log file.
+## Step 2: Pull Changed Files from Git (activity log mode only)
 
-### Step 2: Pull changed files from git
+Cross-reference the commits in the activity log. For each file that was Added or Modified, read its current contents to inspect for risks — don't rely on filenames alone.
 
-Cross-reference the commits in the activity log. For each file that was Added or Modified, read its current contents to inspect for risks -- don't rely on filenames alone.
+---
 
-### Step 3: Analyze for risks
+## Step 3: Analyze for Risks
 
-Check across these categories:
+Check across these categories regardless of mode:
 
 | Category | What to look for |
 |---|---|
-| Secrets / credentials | API keys, tokens, passwords hardcoded in any tracked file |
-| Personal / business data | Full name, location, client details, revenue figures in committed files |
+| Secrets / credentials | API keys, tokens, passwords hardcoded in any file |
+| Personal / business data | Full name, location, client details, revenue figures |
 | Gitignore gaps | Sensitive files that exist on disk but aren't excluded |
-| Insecure patterns | Hardcoded values that should come from env, missing input validation |
-| Third-party integrations | New MCP servers, external APIs, or dependencies added -- assess trust level |
-| Permission / access changes | Changes to settings.json, .claude/ config, or system-level files |
+| Insecure patterns | Hardcoded values that should come from env, missing input validation, XSS, injection risks |
+| Third-party integrations | External APIs, dependencies, MCP servers — assess trust level and data exposure |
+| Permission / access changes | Changes to settings, config, or system-level files |
 
-### Step 4: Rate each finding
+---
+
+## Step 4: Rate Each Finding
 
 | Severity | Meaning |
 |---|---|
-| Critical | Immediate risk -- secret exposed, data leaking, action required now |
-| High | Significant risk -- should be fixed before next session |
-| Medium | Moderate risk -- worth addressing, not urgent |
-| Low | Informational -- best practice gap, low impact |
+| Critical | Immediate risk — secret exposed, data leaking, action required now |
+| High | Significant risk — should be fixed before next session or deployment |
+| Medium | Moderate risk — worth addressing, not urgent |
+| Low | Informational — best practice gap, low impact |
 
-### Step 5: Produce the report
+---
+
+## Step 5: Produce the Report
 
 ```markdown
 # Security Review — YYYY-MM-DD
-_Activity log reviewed: archives/activity-log/YYYY-MM-DD.md_
+_Target: [activity log date OR files/project reviewed]_
 
 ## Summary
 X critical, X high, X medium, X low
@@ -79,16 +96,10 @@ X critical, X high, X medium, X low
 (list any categories explicitly checked and cleared)
 ```
 
-### Step 6: Save
+---
+
+## Step 6: Save
 
 Save to `archives/security-review/YYYY-MM-DD.md`.
 
 Tell the user the file path and headline counts (e.g. "1 critical, 2 medium, 1 low").
-
----
-
-## Edge Cases
-
-- **No activity log exists:** Tell the user and ask if they want to generate one first
-- **No issues found:** Still save the report -- a clean bill of health is worth recording
-- **User specifies a past date:** Use the corresponding activity log file

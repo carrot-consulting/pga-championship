@@ -27,7 +27,7 @@ You are Alex's AI assistant and second brain. Alex is a freelance cybersecurity 
 
 Active workstreams live in `projects/`. Each has a `README.md` with status and key dates.
 
-Current projects: `ai-assistant`, `policy-to-process-diagram`, `company-website`, `business-development`, `flight-monitor`, `family-tree`, `financial-planner`
+Current projects: `ai-assistant`, `policy-to-process-diagram`, `company-website`, `business-development`, `flight-monitor`, `family-tree`, `financial-planner`, `masters-draft-26`
 
 ---
 

@@ -17,6 +17,9 @@
 ### Deleted
 - `path/to/file` -- what it was and why it was removed
 
+### Untracked / Gitignored Changes
+- `path/to/file` -- what it is and why it matters (these won't be pushed to git)
+
 ## Open Items / Next Steps
 -
 
