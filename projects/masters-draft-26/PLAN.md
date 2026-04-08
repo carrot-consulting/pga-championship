@@ -1,7 +1,7 @@
 # Plan: masters-draft-26
 
 ## Context
-6-person Masters 2026 sweepstake leaderboard. Each player drafts 4 golfers before the tournament. Live scores pulled from ESPN API, combined score determines ranking. Sunday captain mechanic doubles one golfer's R4 score.
+6-person Masters 2026 sweepstake leaderboard. Each player drafts 4 golfers before the tournament. Live scores pulled from ESPN API, combined score determines ranking. Sunday captain mechanic doubles one golfer's R4 score. MC penalty adds +5 per missed-cut golfer. Winner bonus subtracts -5 if a golfer wins the tournament.
 
 **Live at:** `https://carrot-consulting.github.io/masters-draft-26/`
 
@@ -23,6 +23,9 @@
 - [x] GitHub repo created: `carrot-consulting/masters-draft-26`
 - [x] GitHub Pages enabled and live
 - [x] Security reviews completed (2026-04-06)
+- [x] MC penalty (+5) and winner bonus (-5) scoring rules implemented (2026-04-07)
+- [x] Live Leaderboard tab added — full ESPN field with picked golfers highlighted (2026-04-07)
+- [x] CSS variables, accessibility improvements, code quality pass (2026-04-07)
 
 ---
 
@@ -76,7 +79,8 @@ Only activates once R4 data exists in ESPN response AND captain is set.
 
 ### Scoring
 - Lower is better (golf)
-- CUT players: score frozen at cut value
+- CUT players: score frozen at cut value, **+5 MC penalty** added to contributing score (badge: MC)
+- **Winner bonus: -5** subtracted from contributing score if golfer wins (badge: WIN); only applied once `comp.winner = true` in ESPN response
 - Leaderboard auto-sorts on every refresh
 
 ---

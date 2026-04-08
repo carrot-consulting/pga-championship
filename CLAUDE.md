@@ -51,6 +51,7 @@ Skills are built organically as recurring workflows emerge.
 - `research` -- Context-aware research using Brave Search
 - `activity-log` -- End-of-day summary from git log and decisions, saved to `archives/activity-log/`
 - `security-review` -- Scan latest activity log for security risks, rated Critical/High/Medium/Low, saved to `archives/security-review/`
+- `frontend-design` -- Create distinctive, production-grade frontend interfaces; avoids generic AI aesthetics
 
 **Skills Backlog** (build these over time):
 - `policy-to-process-diagram` -- Convert policy/procedure docs into process diagrams
