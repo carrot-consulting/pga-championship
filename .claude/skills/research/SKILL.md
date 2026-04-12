@@ -32,22 +32,24 @@ The key must be exported in your shell -- `.mcp.json` does not contain it.
 
 ---
 
-## Step 1: Clarify Before Searching (Always)
+## Step 1: Clarify If Needed
 
-Before running any search, ask these four questions in a single message:
+Before searching, check that you have four things:
 
-1. **What exactly do you want to know?** (restate the question to confirm understanding)
-2. **What's this for?** (client meeting, personal decision, project planning, general curiosity, etc.)
-3. **Quick answer or deep dive?**
-   - Quick: fast summary, 1-3 searches
-   - Deep dive: thorough, cross-referenced, structured report
-4. **Opus or Haiku?**
-   - Opus: current model, best reasoning and synthesis (default)
-   - Haiku: faster and cheaper, good for straightforward lookups
+1. **Topic** — specific enough to query
+2. **Purpose** — what this is for (decision, client work, curiosity, etc.)
+3. **Depth** — quick (1-3 searches) or deep dive (4-8 searches + structured report)
+4. **Model** — Opus (default for deep dives) or Haiku (delegate to research agent)
 
-Wait for answers before proceeding.
+**If all four are clear from the user's request, skip to Step 2. Do not ask.**
 
-**If the user chooses Haiku:** delegate the entire task to the research agent by invoking it with the full context (topic, purpose, depth). Do not run the search yourself.
+**If any are missing**, ask only the missing ones in a single message.
+
+**Defaults (apply silently, no need to ask):**
+- Depth unspecified + simple factual question → quick
+- Model unspecified → Opus for deep dives, Haiku for quick
+
+**If the user specifies or defaults to Haiku:** delegate the entire task to the research agent by invoking it with the full context (topic, purpose, depth). Do not run the search yourself.
 
 ---
 

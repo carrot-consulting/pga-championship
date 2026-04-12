@@ -1,0 +1,5 @@
+data/statements/
+data/processed.json
+__pycache__/
+*.pyc
+.venv/

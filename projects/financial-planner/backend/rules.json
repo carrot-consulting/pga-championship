@@ -1,0 +1,34 @@
+{
+  "vendor_rules": {
+    "Costco Wholesale": "Groceries",
+    "Google Workspace": "Subscriptions",
+    "Google One": "Subscriptions",
+    "Amazon.ca": "Shopping",
+    "Adobe": "Subscriptions",
+    "1Password": "Subscriptions",
+    "Bleu & Persille": "Dining & Drinking",
+    "AMZN Mktp": "Shopping",
+    "Apple.Com/Bill": "Subscriptions",
+    "AMZN Mktp CA*QG7XA9ZH3": "Shopping",
+    "Parc Indigo - No Cmo29": "Transportation",
+    "Igloofest": "Events",
+    "Dnh*Godaddy#400470478": "Other",
+    "Vistaprint Canada": "Other",
+    "Eur 21.74@1.65823367 Botanic Home": "Dining & Drinking",
+    "Gbp 23.3@1.895278969 Duke Street": "Dining & Drinking",
+    "GBP 25.4@1.89527559 Queens at Aintree": "Dining & Drinking",
+    "Mignon Vieux": "Dining & Drinking",
+    "Sq *Igloofest": "Events"
+  },
+  "categories": [
+    "Groceries",
+    "Dining & Drinking",
+    "Subscriptions",
+    "Shopping",
+    "Transportation",
+    "Entertainment",
+    "Housing",
+    "Events",
+    "Other"
+  ]
+}
