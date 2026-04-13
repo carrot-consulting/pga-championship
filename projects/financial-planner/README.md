@@ -3,34 +3,47 @@
 Drop monthly bank statement PDFs into `data/statements/`, hit Scan, and get categorized spending insights.
 
 - **Status:** Active (Phase 1 complete)
-- **Type:** Personal
+- **Type:** Personal expense tracking only
 - **Stack:** Python (FastAPI + pdfplumber) backend, vanilla HTML/JS + Chart.js dashboard
 
 ## Quick Start
 
-```bash
-cd projects/financial-planner
-source .venv/bin/activate
-uvicorn backend.app:app --port 8099
-```
+1. **Install dependencies:**
+   ```bash
+   cd projects/financial-planner
+   pip install -r requirements.txt
+   ```
 
-Open `http://localhost:8099` in your browser.
+2. **Run the server:**
+   ```bash
+   python backend/app.py
+   ```
+
+3. **Open in browser:**
+   Navigate to `http://localhost:8000`
 
 ## Usage
 
 1. Drop PDF statements into `data/statements/`
 2. Click **Scan** on the dashboard
-3. Review and re-categorize any uncategorized vendors
-4. Category overrides are saved and applied to future statements
+3. Review and re-categorize any uncategorized transactions
+4. Category overrides persist and apply to future statements
+
+## What's Built (Phase 1)
+
+✅ BMO credit card PDF parser (text extraction + vendor normalization)  
+✅ Rules-based categorization engine with persistent overrides  
+✅ Dark terminal-aesthetic dashboard with monthly summaries and donut chart  
+✅ Sortable transaction table with inline category editing  
+✅ Category filtering in transaction view  
+✅ 9 transaction categories (Groceries, Dining & Drinking, Subscriptions, Shopping, Transportation, Entertainment, Housing, Events, Other)
 
 ## Supported Accounts
 
-- BMO CashBack World Elite Mastercard (PDF)
-- CIBC Credit Card (PDF) - coming soon
-- CIBC Debit Account (PDF) - coming soon
+- **BMO CashBack World Elite Mastercard** (PDF) ✅
+- CIBC Credit Card (PDF) — Phase 2
+- CIBC Debit Account (PDF) — Phase 2
 
-## Categories
+## Configuration
 
-Groceries, Dining, Subscriptions, Shopping, Transportation, Entertainment, Housing, Other
-
-Custom vendor-to-category mappings are saved in `backend/rules.json`.
+Vendor-to-category mappings are saved in `backend/rules.json` and persist across sessions.
