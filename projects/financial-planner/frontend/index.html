@@ -20,6 +20,14 @@
     </div>
     <div class="controls">
       <div class="select-wrapper">
+        <select id="account-filter" aria-label="Filter by account">
+          <option value="">All accounts</option>
+        </select>
+        <svg class="select-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="select-wrapper">
         <select id="month-selector" aria-label="Select month">
           <option value="">All months</option>
         </select>
@@ -69,6 +77,16 @@
         <div class="table-header">
           <h2 class="card-title">Transactions</h2>
           <div class="table-controls">
+            <div class="select-wrapper">
+              <select id="type-filter" aria-label="Filter by type">
+                <option value="">All types</option>
+                <option value="debit">Debits</option>
+                <option value="credit">Credits</option>
+              </select>
+              <svg class="select-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
             <div class="select-wrapper">
               <select id="category-filter" aria-label="Filter by category">
                 <option value="">All categories</option>

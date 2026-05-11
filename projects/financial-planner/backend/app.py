@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from backend.categorizer import categorize, get_categories, set_vendor_category
 from backend.models import MonthlySummary, Transaction
-from backend.parsers import bmo_credit
+from backend.parsers import bmo_credit, cibc_credit, cibc_debit
 
 app = FastAPI(title="Financial Planner")
 
@@ -22,9 +22,7 @@ TRANSACTIONS_FILE = DATA_DIR / "transactions.json"
 
 STATEMENTS_DIR.mkdir(parents=True, exist_ok=True)
 
-PARSERS = {
-    "bmo": bmo_credit.parse,
-}
+SUPPORTED_EXTENSIONS = {".pdf", ".csv"}
 
 
 def _load_processed() -> set[str]:
@@ -51,37 +49,62 @@ def _save_transactions(transactions: list[Transaction]) -> None:
 
 def _detect_parser(filename: str):
     lower = filename.lower()
-    for key, parser in PARSERS.items():
-        if key in lower:
-            return parser
+    if "bmo" in lower:
+        return bmo_credit.parse
+    if "cibc" in lower and "credit" in lower:
+        return cibc_credit.parse
+    if "cibc" in lower and "debit" in lower:
+        return cibc_debit.parse
+    if lower.endswith(".pdf"):
+        return bmo_credit.parse
     return None
+
+
+def _filter_transactions(
+    transactions: list[Transaction],
+    month: str | None = None,
+    category: str | None = None,
+    account: str | None = None,
+) -> list[Transaction]:
+    if month:
+        transactions = [t for t in transactions if t.date.strftime("%Y-%m") == month]
+    if category:
+        transactions = [t for t in transactions if t.category == category]
+    if account:
+        transactions = [t for t in transactions if t.account_source == account]
+    return transactions
 
 
 @app.post("/scan")
 def scan_statements():
-    """Scan the statements folder for new PDFs and parse them."""
+    """Scan the statements folder for new statements and parse them."""
     processed = _load_processed()
     existing_transactions = _load_transactions()
     new_count = 0
     errors = []
 
-    for pdf_file in sorted(STATEMENTS_DIR.glob("*.pdf")):
-        if pdf_file.name in processed:
+    statement_files = sorted(
+        (f for f in STATEMENTS_DIR.iterdir() if f.suffix in SUPPORTED_EXTENSIONS),
+        key=lambda f: f.name,
+    )
+
+    for statement_file in statement_files:
+        if statement_file.name in processed:
             continue
 
-        parser = _detect_parser(pdf_file.name)
+        parser = _detect_parser(statement_file.name)
         if not parser:
-            errors.append({"file": pdf_file.name, "error": "No parser found for file"})
+            errors.append({"file": statement_file.name, "error": "No parser found for file"})
             continue
 
         try:
-            statement = parser(pdf_file)
+            statement = parser(statement_file)
             categorize(statement.transactions)
             existing_transactions.extend(statement.transactions)
-            processed.add(pdf_file.name)
+            processed.add(statement_file.name)
             new_count += len(statement.transactions)
         except Exception as e:
-            errors.append({"file": pdf_file.name, "error": str(e)})
+            errors.append({"file": statement_file.name, "error": str(e)})
 
     if new_count > 0:
         _save_transactions(existing_transactions)
@@ -104,32 +127,17 @@ def get_transactions(
     if month and not re.match(r'^\d{4}-\d{2}$', month):
         raise HTTPException(status_code=400, detail="Invalid month format. Use YYYY-MM")
 
-    transactions = _load_transactions()
-
-    if month:
-        transactions = [
-            t for t in transactions if t.date.strftime("%Y-%m") == month
-        ]
-    if category:
-        transactions = [t for t in transactions if t.category == category]
-    if account:
-        transactions = [t for t in transactions if t.account_source == account]
-
+    transactions = _filter_transactions(_load_transactions(), month=month, category=category, account=account)
     transactions.sort(key=lambda t: t.date, reverse=True)
     return [t.model_dump(mode="json") for t in transactions]
 
 
 @app.get("/summary")
-def get_summary(month: str | None = None) -> dict:
+def get_summary(month: str | None = None, account: str | None = None) -> dict:
     if month and not re.match(r'^\d{4}-\d{2}$', month):
         raise HTTPException(status_code=400, detail="Invalid month format. Use YYYY-MM")
 
-    transactions = _load_transactions()
-
-    if month:
-        transactions = [
-            t for t in transactions if t.date.strftime("%Y-%m") == month
-        ]
+    transactions = _filter_transactions(_load_transactions(), month=month, account=account)
 
     total_expenses = 0.0
     total_credits = 0.0
@@ -190,8 +198,14 @@ def list_categories():
 def list_months():
     """Return available months from transaction data."""
     transactions = _load_transactions()
-    months = sorted(set(t.date.strftime("%Y-%m") for t in transactions))
-    return months
+    return sorted(set(t.date.strftime("%Y-%m") for t in transactions))
+
+
+@app.get("/accounts")
+def list_accounts():
+    """Return available account names from transaction data."""
+    transactions = _load_transactions()
+    return sorted(set(t.account_source for t in transactions if t.account_source))
 
 
 # Serve frontend static files

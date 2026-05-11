@@ -1,4 +1,5 @@
 data/statements/
+data/transactions.json
 data/processed.json
 __pycache__/
 *.pyc

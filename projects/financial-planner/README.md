@@ -10,7 +10,7 @@ Drop monthly bank statement PDFs into `data/statements/`, hit Scan, and get cate
 
 1. **Install dependencies:**
    ```bash
-   cd projects/financial-planner
+   cd Desktop/max/projects/financial-planner
    pip install -r requirements.txt
    ```
 

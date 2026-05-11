@@ -27,16 +27,18 @@ const currencyFormatter = new Intl.NumberFormat('en-CA', {
 
 document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('refresh-btn').addEventListener('click', scanStatements);
-  document.getElementById('month-selector').addEventListener('change', onMonthChange);
+  document.getElementById('month-selector').addEventListener('change', onFilterChange);
+  document.getElementById('account-filter').addEventListener('change', onFilterChange);
+  document.getElementById('category-filter').addEventListener('change', renderFromCache);
+  document.getElementById('type-filter').addEventListener('change', renderFromCache);
 
   document.querySelectorAll('th.sortable').forEach(th => {
     th.addEventListener('click', () => onSort(th.dataset.sort));
   });
 
   allCategories = await fetchJSON('/categories');
-  await loadMonths();
+  await Promise.all([loadMonths(), loadAccounts()]);
   populateCategoryFilter();
-  document.getElementById('category-filter').addEventListener('change', renderFromCache);
   await loadData();
 });
 
@@ -52,8 +54,16 @@ function selectedMonth() {
   return document.getElementById('month-selector').value;
 }
 
+function selectedAccount() {
+  return document.getElementById('account-filter').value;
+}
+
 function selectedCategory() {
   return document.getElementById('category-filter').value;
+}
+
+function selectedType() {
+  return document.getElementById('type-filter').value;
 }
 
 function populateCategoryFilter() {
@@ -68,41 +78,53 @@ function populateCategoryFilter() {
 }
 
 function renderFromCache() {
+  let filtered = currentTransactions;
   const cat = selectedCategory();
-  const filtered = cat
-    ? currentTransactions.filter(t => t.category === cat)
-    : currentTransactions;
+  const type = selectedType();
+  if (cat) filtered = filtered.filter(t => t.category === cat);
+  if (type === 'debit') filtered = filtered.filter(t => !t.is_credit);
+  if (type === 'credit') filtered = filtered.filter(t => t.is_credit);
   renderTable(filtered);
 }
 
 // --- Data loading ---
 
-async function loadMonths() {
-  const months = await fetchJSON('/months');
-  const sel = document.getElementById('month-selector');
+async function populateSelect(elementId, endpoint, formatter) {
+  const data = await fetchJSON(endpoint);
+  const sel = document.getElementById(elementId);
   const current = sel.value;
 
-  // Keep "All months" option, replace the rest
   while (sel.options.length > 1) sel.remove(1);
 
-  months.forEach(m => {
+  data.forEach(item => {
     const opt = document.createElement('option');
-    opt.value = m;
-    opt.textContent = formatMonth(m);
+    opt.value = item;
+    opt.textContent = formatter ? formatter(item) : item;
     sel.appendChild(opt);
   });
 
-  // Restore selection or pick the latest month
-  if (current && months.includes(current)) {
-    sel.value = current;
-  } else if (months.length > 0) {
-    sel.value = months[months.length - 1];
-  }
+  if (current && data.includes(current)) sel.value = current;
+  return data;
+}
+
+async function loadMonths() {
+  const months = await populateSelect('month-selector', '/months', formatMonth);
+  // Default to latest month if none selected
+  const sel = document.getElementById('month-selector');
+  if (!sel.value && months.length > 0) sel.value = months[months.length - 1];
+}
+
+async function loadAccounts() {
+  await populateSelect('account-filter', '/accounts');
 }
 
 async function loadData() {
   const month = selectedMonth();
-  const query = month ? `?month=${month}` : '';
+  const account = selectedAccount();
+  const params = new URLSearchParams();
+  if (month) params.set('month', month);
+  if (account) params.set('account', account);
+  const query = params.toString() ? `?${params}` : '';
 
   document.getElementById('summary-cards').classList.add('loading');
 
@@ -130,7 +152,7 @@ async function scanStatements() {
     const result = await fetchJSON('/scan', { method: 'POST' });
     if (result.new_transactions > 0) {
       toast(`Imported ${result.new_transactions} transactions`, 'success');
-      await loadMonths();
+      await Promise.all([loadMonths(), loadAccounts()]);
       await loadData();
     } else if (result.errors.length > 0) {
       toast(`Errors: ${result.errors.map(e => e.file).join(', ')}`, 'error');
@@ -328,9 +350,9 @@ async function onCategoryChange(e) {
   }
 }
 
-// --- Month change ---
+// --- Filter changes ---
 
-function onMonthChange() {
+function onFilterChange() {
   loadData();
 }
 
