@@ -31,12 +31,12 @@
       background: #fff;
       border-bottom: 3px solid var(--navy);
       text-align: center;
-      padding: 22px 16px 16px;
+      padding: 14px 12px 12px;
     }
 
     header h1 {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 1.9rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: var(--navy);
       letter-spacing: 0.01em;
@@ -61,8 +61,8 @@
     /* ── Main content ── */
     main {
       max-width: 560px;
-      margin: 28px auto 0;
-      padding: 0 12px;
+      margin: 16px auto 0;
+      padding: 0 8px;
     }
 
     /* ── Leaderboard card ── */
@@ -91,7 +91,7 @@
     .lb-row {
       display: grid;
       grid-template-columns: 36px 1fr 72px;
-      padding: 14px 14px;
+      padding: 10px 12px;
       border-bottom: 1px solid var(--sep);
       cursor: pointer;
       transition: background 0.12s;
@@ -110,13 +110,13 @@
 
     .lb-name {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 600;
       color: var(--ink);
     }
 
     .lb-score {
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       font-weight: 700;
       text-align: right;
       font-family: 'Source Sans 3', sans-serif;
@@ -750,7 +750,10 @@ function fmtThru(raw, status, currentRoundGross) {
   if (/CUT/.test(status))              return "CUT";
   if (/WITHDRAWN|WD/.test(status))     return "WD";
   if (!raw || raw === "-")             return "–";
-  if (/^\d{4}-\d{2}-\d{2}T/.test(raw)) return "–";
+  if (/^\d{4}-\d{2}-\d{2}T/.test(raw)) {
+    const d = new Date(raw);
+    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
   const clean = raw.replace(/[<>&"]/g, "");
   if (clean === "F" || clean === "18") {
     return currentRoundGross != null ? String(currentRoundGross) : "F";
