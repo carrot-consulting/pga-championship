@@ -480,7 +480,7 @@ for (const [sweeper, { golfers, captain }] of Object.entries(PICKS)) {
 // CONFIG
 // ─────────────────────────────────────────────────────────────────
 const API_URL    = "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga";
-const ODDS_URL   = "https://api.the-odds-api.com/v4/sports/golf_pga_championship_winner/odds/?regions=us&markets=outrights&oddsFormat=american&apiKey=5f69a630894732a667d1016a52df788c";
+const ODDS_URL   = "https://api.the-odds-api.com/v4/sports/golf_pga_championship_winner/odds/?regions=us&markets=outrights&oddsFormat=decimal&apiKey=5f69a630894732a667d1016a52df788c";
 const REFRESH_MS = 10 * 60 * 1000; // 10 minutes
 
 // ─────────────────────────────────────────────────────────────────
@@ -530,7 +530,7 @@ async function fetchOdds() {
     if (!bm) return;
     oddsData = {};
     for (const o of bm.markets[0].outcomes) {
-      oddsData[o.name] = toFractional(o.price);
+      oddsData[o.name] = o.price;
     }
   } catch (err) {
     console.warn('[pga-draft] Odds fetch failed:', err);
@@ -697,7 +697,7 @@ function renderDetail(key) {
         ${isWinner  ? `<span class="badge badge-win">WIN</span>` : ""}
         ${isCut     ? `<span class="badge badge-mc">MC</span>` : ""}
         ${isWD      ? `<span class="badge badge-wd">WD</span>` : ""}
-        ${oddsStr   ? `<span class="golfer-odds">${oddsStr}</span>` : ""}
+        ${oddsStr   ? `<span class="golfer-odds">Odds: ${oddsStr}</span>` : ""}
       </div>
       <div class="rounds">`;
 
@@ -804,14 +804,13 @@ function toFractional(american) {
 }
 
 function getOdds(pickName) {
-  if (oddsData[pickName]) return oddsData[pickName];
-  // Strip accents (Åberg → Aberg)
+  const fmt = v => v != null ? Number(v).toFixed(2) : null;
+  if (oddsData[pickName] != null) return fmt(oddsData[pickName]);
   const stripped = pickName.normalize('NFD').replace(/[̀-ͯ]/g, '');
-  if (oddsData[stripped]) return oddsData[stripped];
-  // Last-name fallback
+  if (oddsData[stripped] != null) return fmt(oddsData[stripped]);
   const lastName = pickName.split(' ').at(-1).toLowerCase();
   for (const [name, odds] of Object.entries(oddsData)) {
-    if (name.split(' ').at(-1).toLowerCase() === lastName) return odds;
+    if (name.split(' ').at(-1).toLowerCase() === lastName) return fmt(odds);
   }
   return null;
 }
