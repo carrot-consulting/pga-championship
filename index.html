@@ -799,7 +799,7 @@ function switchTab(tab) {
 // FIELD LEADERBOARD
 // ─────────────────────────────────────────────────────────────────
 function renderFieldLeaderboard() {
-  const hasStarted = Object.values(golferData).some(g => g.rounds.length > 0);
+  const hasStarted = Object.values(golferData).some(g => g.rounds.some(r => r.gross !== null));
   const entries = Object.entries(golferData).sort((a, b) =>
     hasStarted
       ? a[1].total - b[1].total
