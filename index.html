@@ -419,12 +419,11 @@
 // PICKS
 // ⚠️  Names must match ESPN's displayName exactly.
 //     Open browser console after loading — any mismatches show as warnings.
-// ⚠️  Robbie's 4th pick is TBD — update before Thursday tee-off.
 // ─────────────────────────────────────────────────────────────────
 const PICKS = {
   "Robbie": {
     team:    "Byson DeFlanbeau",
-    golfers: ["Scottie Scheffler", "Patrick Cantlay", "Rickie Fowler", "TBD"],
+    golfers: ["Scottie Scheffler", "Patrick Cantlay", "Rickie Fowler", "Sepp Straka"],
     captain: null
   },
   "Simo": {
@@ -576,20 +575,16 @@ function parseScores(data) {
     const isCut = /CUT/.test(statusStr);
     const isWD  = /WITHDRAWN|WD/.test(statusStr);
 
-    const todayVal = (!(isCut || isWD) && cri != null && rounds[cri]) ? rounds[cri].value : null;
-
     const isTeeTime = /^\d{4}-\d{2}-\d{2}T/.test(thruRaw);
 
     golferData[name] = {
-      total:        totalVal,
-      totalDisplay: fmtScore(totalVal),
+      total:     totalVal,
       rounds,
-      thru:         fmtThru(thruRaw, statusStr, currentRoundGross),
-      today:        todayVal != null ? fmtScore(todayVal) : "–",
-      teeTimeMs:    isTeeTime ? new Date(thruRaw).getTime() : null,
+      thru:      fmtThru(thruRaw, statusStr, currentRoundGross),
+      teeTimeMs: isTeeTime ? new Date(thruRaw).getTime() : null,
       isCut,
       isWD,
-      isWinner:     comp.winner === true,
+      isWinner:  comp.winner === true,
     };
   }
 
@@ -654,16 +649,18 @@ function renderLeaderboard() {
   html += `</div>`;
   document.getElementById("leaderboard-container").innerHTML = html;
 
-  if (activeSweeper) renderDetail(activeSweeper);
+  if (activeSweeper) {
+    const entry = sorted.find(s => s.key === activeSweeper);
+    renderDetail(activeSweeper, entry?.score ?? calcSweeper(activeSweeper));
+  }
   if (activeTab === 'field') renderFieldLeaderboard();
 }
 
 // ─────────────────────────────────────────────────────────────────
 // RENDER TEAM DETAIL
 // ─────────────────────────────────────────────────────────────────
-function renderDetail(key) {
+function renderDetail(key, sweeperScore = calcSweeper(key)) {
   const { team, golfers, captain } = PICKS[key];
-  const sweeperScore = calcSweeper(key);
   const detailEl = document.getElementById("team-detail");
 
   let html = `
@@ -704,40 +701,28 @@ function renderDetail(key) {
     const rawTot = g?.total ?? 0;
     let adjTot = rawTot;
     let totNote = "";
-    if (isCut)      { adjTot += 5; totNote = `<div class="multiplier-note mc">+5 MC</div>`; }
-    if (isWinner)   { adjTot -= 5; totNote = `<div class="multiplier-note win">-5 WIN</div>`; }
+    if (isCut)    { adjTot += 5; totNote = `<div class="multiplier-note mc">+5 MC</div>`; }
+    if (isWinner) { adjTot -= 5; totNote = `<div class="multiplier-note win">-5 WIN</div>`; }
     const r4val = g?.rounds[3]?.value;
     if (isCaptain && r4val != null) { adjTot += r4val; totNote += `<div class="multiplier-note">+R4×2</div>`; }
-    const totCls = adjTot < 0 ? "under" : adjTot > 0 ? "over" : "";
     html += `<div class="round-pill">
       <div class="round-label">Tot</div>
-      <div class="round-value ${totCls}">${g ? fmtScore(adjTot) : "–"}</div>
+      <div class="round-value ${roundCls(adjTot)}">${g ? fmtScore(adjTot) : "–"}</div>
       ${totNote}
     </div>`;
 
     ["R1","R2","R3","R4"].forEach((label, idx) => {
       const r = g?.rounds[idx];
       const isCaptainR4 = isCaptain && idx === 3;
-
-      if (r && r.value !== null) {
-        let displayVal = fmtScore(r.value);
-        let multiplierNote = "";
-        if (isCaptainR4) {
-          displayVal = fmtScore(r.value * 2);
-          multiplierNote = `<div class="multiplier-note">&#215;2</div>`;
-        }
-        const rCls = r.value < 0 ? "under" : r.value > 0 ? "over" : "";
-        html += `<div class="round-pill ${isCaptainR4 ? "captain-r4" : ""}">
-          <div class="round-label">${label}</div>
-          <div class="round-value ${rCls}">${displayVal}</div>
-          ${multiplierNote}
-        </div>`;
-      } else {
-        html += `<div class="round-pill ${isCaptainR4 ? "captain-r4" : ""}">
-          <div class="round-label">${label}</div>
-          <div class="round-value empty">–</div>
-        </div>`;
-      }
+      const hasScore = r && r.value !== null;
+      const displayVal = hasScore ? fmtScore(isCaptainR4 ? r.value * 2 : r.value) : "–";
+      const rCls      = hasScore ? roundCls(r.value) : "empty";
+      const xNote     = (hasScore && isCaptainR4) ? `<div class="multiplier-note">&#215;2</div>` : "";
+      html += `<div class="round-pill ${isCaptainR4 ? "captain-r4" : ""}">
+        <div class="round-label">${label}</div>
+        <div class="round-value ${rCls}">${displayVal}</div>
+        ${xNote}
+      </div>`;
     });
 
     html += `<div class="round-pill">
@@ -793,14 +778,8 @@ function scoreCls(val) {
   return val < 0 ? "score-under" : val > 0 ? "score-over" : "score-even";
 }
 
-function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
-
-function toFractional(american) {
-  if (!american && american !== 0) return null;
-  const num = american > 0 ? american : 100;
-  const den = american > 0 ? 100 : Math.abs(american);
-  const g = gcd(num, den);
-  return `${num / g}/${den / g}`;
+function roundCls(val) {
+  return val < 0 ? "under" : val > 0 ? "over" : "";
 }
 
 function getOdds(pickName) {
@@ -867,12 +846,14 @@ function switchTab(tab) {
 // FIELD LEADERBOARD
 // ─────────────────────────────────────────────────────────────────
 function renderFieldLeaderboard() {
-  const hasStarted = Object.values(golferData).some(g => g.rounds.some(r => r.gross !== null));
-  const entries = Object.entries(golferData).sort((a, b) =>
-    hasStarted
-      ? a[1].total - b[1].total
-      : (a[1].teeTimeMs ?? Infinity) - (b[1].teeTimeMs ?? Infinity)
-  );
+  const entries = Object.entries(golferData).sort((a, b) => {
+    const aStarted = a[1].rounds.some(r => r.gross !== null);
+    const bStarted = b[1].rounds.some(r => r.gross !== null);
+    if (aStarted && bStarted)   return a[1].total - b[1].total;
+    if (aStarted && !bStarted)  return -1;
+    if (!aStarted && bStarted)  return 1;
+    return (a[1].teeTimeMs ?? Infinity) - (b[1].teeTimeMs ?? Infinity);
+  });
 
   if (entries.length === 0) {
     document.getElementById('field-container').innerHTML =
