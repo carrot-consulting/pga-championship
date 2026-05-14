@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PGA Championship Draft 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:  #1B3066;
+      --gold:  #C9A84C;
+      --bg:    #f5f5f5;
+      --sep:   #e8e8e8;
+      --red:   #c0392b;
+      --ink:   #1a1a1a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      padding-bottom: 48px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #fff;
+      border-bottom: 3px solid var(--navy);
+      text-align: center;
+      padding: 22px 16px 16px;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: 0.01em;
+    }
+
+    #tournament-name {
+      font-size: 0.72rem;
+      color: #888;
+      margin-top: 5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    #meta {
+      font-size: 0.73rem;
+      color: var(--gold);
+      margin-top: 5px;
+      font-weight: 400;
+    }
+
+    /* ── Main content ── */
+    main {
+      max-width: 560px;
+      margin: 28px auto 0;
+      padding: 0 12px;
+    }
+
+    /* ── Leaderboard card ── */
+    .card {
+      background: #fff;
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      border-top: 3px solid var(--navy);
+    }
+
+    .card-header {
+      display: grid;
+      grid-template-columns: 36px 1fr 72px;
+      background: var(--navy);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 9px 14px;
+    }
+
+    .card-header span:last-child { text-align: right; }
+
+    .lb-row {
+      display: grid;
+      grid-template-columns: 36px 1fr 72px;
+      padding: 14px 14px;
+      border-bottom: 1px solid var(--sep);
+      cursor: pointer;
+      transition: background 0.12s;
+      align-items: center;
+    }
+
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row:hover { background: #f8f9fb; }
+    .lb-row.active { background: #eef1f8; border-left: 3px solid var(--navy); }
+
+    .lb-pos {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #aaa;
+    }
+
+    .lb-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .lb-score {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: right;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+
+    .score-under { color: var(--red); }
+    .score-over  { color: #333; }
+    .score-even  { color: var(--navy); }
+
+    /* ── Team detail card ── */
+    #team-detail {
+      display: none;
+      margin-top: 12px;
+    }
+
+    #team-detail.visible { display: block; }
+
+    .detail-header {
+      background: var(--navy);
+      color: #fff;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .detail-header .sweeper-score {
+      margin-left: 8px;
+      font-size: 0.8rem;
+      color: var(--gold);
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 400;
+    }
+
+    .close-btn {
+      margin-left: auto;
+      cursor: pointer;
+      font-size: 1rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1;
+      padding: 2px 4px;
+      background: none;
+      border: none;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+
+    .close-btn:hover { color: #fff; }
+
+    /* ── Golfer row ── */
+    .golfer-row {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--sep);
+      background: #fff;
+    }
+
+    .golfer-row:last-child { border-bottom: none; }
+    .golfer-row.is-captain { background: #fefefe; border-left: 1px solid rgba(201,168,76,0.35); }
+
+    .golfer-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+
+    .golfer-name {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .badge {
+      font-size: 0.58rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .badge-captain {
+      background: var(--gold);
+      color: #fff;
+    }
+
+    .badge-mc {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .badge-win {
+      background: var(--gold);
+      color: #fff;
+    }
+
+    .badge-wd {
+      background: #aaa;
+      color: #fff;
+    }
+
+    /* ── Round scores ── */
+    .rounds {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .round-pill {
+      background: #f5f5f5;
+      border-radius: 2px;
+      padding: 4px 8px;
+      text-align: center;
+      min-width: 46px;
+    }
+
+    .round-pill.captain-r4 {
+      background: #fdfbf0;
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 0 1px rgba(201,168,76,0.15);
+    }
+
+    .round-label {
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: #aaa;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .round-value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 1px;
+    }
+
+    .round-value.under { color: var(--red); }
+    .round-value.over  { color: #333; }
+    .round-value.empty { color: #ddd; }
+    .round-value.thru  { font-size: 0.75rem; }
+
+    .multiplier-note {
+      font-size: 0.56rem;
+      color: var(--gold);
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
+    .multiplier-note.mc  { color: var(--red); }
+    .multiplier-note.win { color: var(--gold); }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 2px solid var(--navy);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #aaa;
+      cursor: pointer;
+      transition: color 0.12s;
+    }
+
+    .tab.active { color: var(--navy); border-bottom: 2px solid var(--navy); margin-bottom: -2px; }
+    .tab:hover  { color: var(--navy); }
+
+    /* ── Field leaderboard ── */
+    .field-row  { grid-template-columns: 36px 1fr 72px 52px 52px; }
+    .field-picked { background: #e8edf5; }
+    .field-thru { font-size: 0.78rem; color: #888; text-align: right; }
+    .field-today { font-size: 0.78rem; text-align: right; }
+    .field-header span:nth-child(3),
+    .field-header span:nth-child(4),
+    .field-header span:nth-child(5) { text-align: right; }
+    .field-captain { font-size: 0.58rem; font-weight: 700; padding: 1px 4px; border-radius: 2px; background: var(--gold); color: #fff; margin-left: 4px; vertical-align: middle; letter-spacing: 0.06em; }
+
+    /* ── Cut line ── */
+    .cut-line {
+      padding: 6px 12px;
+      background: #f7f7f7;
+      border-top: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+    .cut-line-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #999;
+      text-transform: uppercase;
+    }
+
+    /* ── States ── */
+    .loading {
+      text-align: center;
+      color: #aaa;
+      padding: 48px 16px;
+      font-size: 0.9rem;
+      background: #fff;
+    }
+
+    .error-card {
+      background: #fff;
+      border-radius: 2px;
+      padding: 28px 16px;
+      text-align: center;
+    }
+
+    .error-card p { color: var(--red); font-size: 0.9rem; }
+    .error-card small { color: #aaa; font-size: 0.78rem; margin-top: 6px; display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>PGA Championship Draft 2026</h1>
+  <div id="tournament-name"></div>
+  <div id="meta">Fetching live scores...</div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="sweepstake" onclick="switchTab('sweepstake')">Sweepstake</button>
+  <button class="tab" data-tab="field" onclick="switchTab('field')">Live Leaderboard</button>
+</div>
+
+<main>
+  <div id="tab-sweepstake">
+    <div id="leaderboard-container">
+      <div class="loading">Loading scores...</div>
+    </div>
+    <div id="team-detail"></div>
+  </div>
+  <div id="tab-field" hidden>
+    <div id="field-container">
+      <div class="loading">Loading scores...</div>
+    </div>
+  </div>
+</main>
+
+<script>
+/*
+ * ═══════════════════════════════════════════════════════════════
+ * HOW THIS PAGE WORKS (overview)
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * On load (and every 10 minutes):
+ *   1. fetchScores()  → calls ESPN API to get live golf scores
+ *   2. parseScores()  → extracts each golfer's total + round scores
+ *   3. calcSweeper()  → adds up each person's 4 golfers (+ captain bonus)
+ *   4. renderLeaderboard() → sorts and draws the main table
+ *
+ * On click:
+ *   toggleDetail() → expands that person's 4 golfers below the table
+ *
+ * TO UPDATE PICKS (Wednesday after draft):
+ *   - Replace golfer names in PICKS below
+ *   - Names must match ESPN exactly (check browser console for warnings)
+ *   - Leave captain as null until Saturday night
+ *
+ * TO SET CAPTAINS (Saturday night before R4):
+ *   - Change captain: null  →  captain: "Golfer Name"  for each person
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+// ─────────────────────────────────────────────────────────────────
+// PICKS
+// ⚠️  Names must match ESPN's displayName exactly.
+//     Open browser console after loading — any mismatches show as warnings.
+// ⚠️  Robbie's 4th pick is TBD — update before Thursday tee-off.
+// ─────────────────────────────────────────────────────────────────
+const PICKS = {
+  "Robbie": {
+    team:    "Byson DeFlanbeau",
+    golfers: ["Scottie Scheffler", "Patrick Cantlay", "Rickie Fowler", "TBD"],
+    captain: null
+  },
+  "Simo": {
+    team:    "Le Bloc Simo",
+    golfers: ["Rory McIlroy", "Patrick Reed", "Russell Henley", "Alex Fitzpatrick"],
+    captain: null
+  },
+  "Mike": {
+    team:    "Spideymen",
+    golfers: ["Cameron Young", "J.J. Spaun", "Tyrrell Hatton", "Haotong Li"],
+    captain: null
+  },
+  "OJ": {
+    team:    "Moneyballs GC",
+    golfers: ["Bryson DeChambeau", "Viktor Hovland", "Shane Lowry", "Sungjae Im"],
+    captain: null
+  },
+  "JW": {
+    team:    "Wright on Par",
+    golfers: ["Ludvig Åberg", "Jon Rahm", "Chris Gotterup", "Harris English"],
+    captain: null
+  },
+  "Fred": {
+    team:    "Lions Gate Links",
+    golfers: ["Justin Rose", "Brooks Koepka", "Hideki Matsuyama", "Kristoffer Reitan"],
+    captain: null
+  },
+  "Liam": {
+    team:    "Knorcks in Regulation",
+    golfers: ["Matt Fitzpatrick", "Collin Morikawa", "Justin Thomas", "Min Woo Lee"],
+    captain: null
+  },
+  "Toz": {
+    team:    "Kitsilano Thunderclappers",
+    golfers: ["Tommy Fleetwood", "Xander Schauffele", "Sam Burns", "Si Woo Kim"],
+    captain: null
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────────────────────
+const API_URL    = "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga";
+const REFRESH_MS = 10 * 60 * 1000; // 10 minutes
+
+// ─────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────
+let golferData     = {};
+let cutInfo        = null;
+let activeSweeper  = null;
+let activeTab      = 'sweepstake';
+let nextRefreshAt  = null;
+let countdownTimer = null;
+let lastUpdated    = null;
+
+// ─────────────────────────────────────────────────────────────────
+// FETCH
+// ─────────────────────────────────────────────────────────────────
+async function fetchScores() {
+  try {
+    const res = await fetch(API_URL + '&_=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    parseScores(data);
+    renderLeaderboard();
+
+    lastUpdated = new Date();
+    nextRefreshAt = Date.now() + REFRESH_MS;
+    updateMeta();
+
+  } catch (err) {
+    console.error("[pga-draft] Fetch error:", err);
+    document.getElementById("meta").textContent = "Error fetching scores — retrying in 10 min";
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PARSE
+// ─────────────────────────────────────────────────────────────────
+function parseScores(data) {
+  golferData = {};
+
+  const event       = data.events?.[0];
+  const competitors = event?.competitions?.[0]?.competitors ?? [];
+
+  const tournamentEl = document.getElementById("tournament-name");
+  if (tournamentEl && event?.name) tournamentEl.textContent = event.name;
+
+  const t = event?.tournament;
+  if (t?.cutScore != null) {
+    cutInfo = { score: t.cutScore, round: t.cutRound, count: t.cutCount };
+  }
+
+  for (const comp of competitors) {
+    const name = comp.athlete?.displayName;
+    if (!name) continue;
+
+    const statusStr    = comp.status?.type?.name ?? "";
+    const thruRaw      = comp.status?.displayValue ?? "";
+    const currentRound = comp.status?.period ?? null;
+
+    const rounds = (comp.linescores ?? []).map(ls => ({
+      value:   parseToPar(ls.displayValue),
+      display: ls.displayValue ?? "–",
+      gross:   ls.value ?? null
+    }));
+
+    const totalVal = rounds.reduce((sum, r) => sum + r.value, 0);
+
+    const cri = (currentRound != null && currentRound > 0) ? currentRound - 1 : null;
+    const currentRoundGross = (cri != null && rounds[cri]) ? rounds[cri].gross : null;
+
+    const isCut = /CUT/.test(statusStr);
+    const isWD  = /WITHDRAWN|WD/.test(statusStr);
+
+    const todayVal = (!(isCut || isWD) && cri != null && rounds[cri]) ? rounds[cri].value : null;
+
+    golferData[name] = {
+      total:        totalVal,
+      totalDisplay: fmtScore(totalVal),
+      rounds,
+      thru:         fmtThru(thruRaw, statusStr, currentRoundGross),
+      today:        todayVal != null ? fmtScore(todayVal) : "–",
+      isCut,
+      isWD,
+      isWinner:     comp.winner === true,
+    };
+  }
+
+  for (const [sweeper, { golfers }] of Object.entries(PICKS)) {
+    for (const name of golfers) {
+      if (name !== "TBD" && !golferData[name]) {
+        console.warn(`[pga-draft] ⚠️ No match for "${name}" (${sweeper}) — check spelling vs ESPN`);
+      }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SCORE CALCULATION
+// ─────────────────────────────────────────────────────────────────
+function calcSweeper(key) {
+  const { golfers, captain } = PICKS[key];
+
+  let total = 0;
+  for (const name of golfers) {
+    const g = golferData[name];
+    let score = g?.total ?? 0;
+    if (g?.isCut)    score += 5;
+    if (g?.isWinner) score -= 5;
+    total += score;
+  }
+
+  if (captain && golferData[captain]) {
+    const r4 = golferData[captain].rounds[3];
+    if (r4 && r4.value !== null) {
+      total += r4.value;
+    }
+  }
+
+  return total;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RENDER LEADERBOARD
+// ─────────────────────────────────────────────────────────────────
+function renderLeaderboard() {
+  const sorted = Object.keys(PICKS)
+    .map(key => ({ key, score: calcSweeper(key) }))
+    .sort((a, b) => a.score - b.score);
+
+  let html = `<div class="card">
+    <div class="card-header">
+      <span>#</span><span>Player</span><span>Score</span>
+    </div>`;
+
+  sorted.forEach(({ key, score }, i) => {
+    const cls    = scoreCls(score);
+    const active = key === activeSweeper ? "active" : "";
+    html += `
+      <div class="lb-row ${active}" role="button" tabindex="0" onclick="toggleDetail('${key}')" onkeydown="if(event.key==='Enter'||event.key===' ')toggleDetail('${key}')">
+        <span class="lb-pos">${i + 1}</span>
+        <span class="lb-name">${key}</span>
+        <span class="lb-score ${cls}">${fmtScore(score)}</span>
+      </div>`;
+  });
+
+  html += `</div>`;
+  document.getElementById("leaderboard-container").innerHTML = html;
+
+  if (activeSweeper) renderDetail(activeSweeper);
+  if (activeTab === 'field') renderFieldLeaderboard();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RENDER TEAM DETAIL
+// ─────────────────────────────────────────────────────────────────
+function renderDetail(key) {
+  const { team, golfers, captain } = PICKS[key];
+  const sweeperScore = calcSweeper(key);
+  const detailEl = document.getElementById("team-detail");
+
+  let html = `
+    <div class="card">
+      <div class="detail-header">
+        ${team}
+        <span class="sweeper-score">${key} · ${fmtScore(sweeperScore)} combined</span>
+        <button class="close-btn" onclick="closeDetail()" aria-label="Close">&#10005;</button>
+      </div>`;
+
+  const sortedGolfers = [...golfers].sort((a, b) => {
+    const ga = golferData[a], gb = golferData[b];
+    const aCutWD = ga?.isCut || ga?.isWD ? 1 : 0;
+    const bCutWD = gb?.isCut || gb?.isWD ? 1 : 0;
+    if (aCutWD !== bCutWD) return aCutWD - bCutWD;
+    return (ga?.total ?? 0) - (gb?.total ?? 0);
+  });
+
+  for (const name of sortedGolfers) {
+    const g = golferData[name];
+    const isCaptain = name === captain;
+    const isCut     = g?.isCut     ?? false;
+    const isWD      = g?.isWD      ?? false;
+    const isWinner  = g?.isWinner  ?? false;
+
+    html += `<div class="golfer-row ${isCaptain ? "is-captain" : ""}">
+      <div class="golfer-top">
+        <span class="golfer-name">${name}</span>
+        ${isCaptain ? `<span class="badge badge-captain">C</span>` : ""}
+        ${isWinner  ? `<span class="badge badge-win">WIN</span>` : ""}
+        ${isCut     ? `<span class="badge badge-mc">MC</span>` : ""}
+        ${isWD      ? `<span class="badge badge-wd">WD</span>` : ""}
+      </div>
+      <div class="rounds">`;
+
+    const rawTot = g?.total ?? 0;
+    let adjTot = rawTot;
+    let totNote = "";
+    if (isCut)      { adjTot += 5; totNote = `<div class="multiplier-note mc">+5 MC</div>`; }
+    if (isWinner)   { adjTot -= 5; totNote = `<div class="multiplier-note win">-5 WIN</div>`; }
+    const r4val = g?.rounds[3]?.value;
+    if (isCaptain && r4val != null) { adjTot += r4val; totNote += `<div class="multiplier-note">+R4×2</div>`; }
+    const totCls = adjTot < 0 ? "under" : adjTot > 0 ? "over" : "";
+    html += `<div class="round-pill">
+      <div class="round-label">Tot</div>
+      <div class="round-value ${totCls}">${g ? fmtScore(adjTot) : "–"}</div>
+      ${totNote}
+    </div>`;
+
+    ["R1","R2","R3","R4"].forEach((label, idx) => {
+      const r = g?.rounds[idx];
+      const isCaptainR4 = isCaptain && idx === 3;
+
+      if (r && r.value !== null) {
+        let displayVal = fmtScore(r.value);
+        let multiplierNote = "";
+        if (isCaptainR4) {
+          displayVal = fmtScore(r.value * 2);
+          multiplierNote = `<div class="multiplier-note">&#215;2</div>`;
+        }
+        const rCls = r.value < 0 ? "under" : r.value > 0 ? "over" : "";
+        html += `<div class="round-pill ${isCaptainR4 ? "captain-r4" : ""}">
+          <div class="round-label">${label}</div>
+          <div class="round-value ${rCls}">${displayVal}</div>
+          ${multiplierNote}
+        </div>`;
+      } else {
+        html += `<div class="round-pill ${isCaptainR4 ? "captain-r4" : ""}">
+          <div class="round-label">${label}</div>
+          <div class="round-value empty">–</div>
+        </div>`;
+      }
+    });
+
+    html += `<div class="round-pill">
+      <div class="round-label">Thru</div>
+      <div class="round-value thru">${g?.thru ?? "–"}</div>
+    </div>`;
+
+    html += `</div></div>`;
+  }
+
+  html += `</div>`;
+  detailEl.innerHTML = html;
+  detailEl.classList.add("visible");
+  detailEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// INTERACTIONS
+// ─────────────────────────────────────────────────────────────────
+function toggleDetail(key) {
+  if (activeSweeper === key) {
+    closeDetail();
+  } else {
+    activeSweeper = key;
+    renderLeaderboard();
+  }
+}
+
+function closeDetail() {
+  activeSweeper = null;
+  document.getElementById("team-detail").classList.remove("visible");
+  renderLeaderboard();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────
+function parseToPar(str) {
+  if (!str || str === "-" || str === "") return 0;
+  if (str === "E") return 0;
+  const n = parseInt(str.replace("+", ""), 10);
+  return isNaN(n) ? 0 : n;
+}
+
+function fmtScore(val) {
+  if (val === null || val === undefined || isNaN(val)) return "–";
+  if (val === 0) return "E";
+  return val > 0 ? `+${val}` : `${val}`;
+}
+
+function scoreCls(val) {
+  if (val == null) return "";
+  return val < 0 ? "score-under" : val > 0 ? "score-over" : "score-even";
+}
+
+function fmtThru(raw, status, currentRoundGross) {
+  if (/CUT/.test(status))              return "CUT";
+  if (/WITHDRAWN|WD/.test(status))     return "WD";
+  if (!raw || raw === "-")             return "–";
+  if (/^\d{4}-\d{2}-\d{2}T/.test(raw)) return "–";
+  const clean = raw.replace(/[<>&"]/g, "");
+  if (clean === "F" || clean === "18") {
+    return currentRoundGross != null ? String(currentRoundGross) : "F";
+  }
+  return clean;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// COUNTDOWN + META
+// ─────────────────────────────────────────────────────────────────
+function updateMeta() {
+  const metaEl = document.getElementById("meta");
+  if (!metaEl || !lastUpdated) return;
+  const timeStr = lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (!nextRefreshAt) {
+    metaEl.textContent = `Last updated ${timeStr}`;
+    return;
+  }
+  const remaining = Math.max(0, nextRefreshAt - Date.now());
+  const mins = Math.floor(remaining / 60000);
+  const secs = Math.floor((remaining % 60000) / 1000);
+  metaEl.textContent = `Updated ${timeStr} · next refresh ${mins}:${String(secs).padStart(2, "0")}`;
+}
+
+function startCountdown() {
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(updateMeta, 1000);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('tab-sweepstake').hidden = tab !== 'sweepstake';
+  document.getElementById('tab-field').hidden = tab !== 'field';
+  if (tab === 'field') renderFieldLeaderboard();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// FIELD LEADERBOARD
+// ─────────────────────────────────────────────────────────────────
+function renderFieldLeaderboard() {
+  const entries = Object.entries(golferData)
+    .sort((a, b) => a[1].total - b[1].total);
+
+  if (entries.length === 0) {
+    document.getElementById('field-container').innerHTML =
+      `<div class="loading">No data yet — scores will appear once the tournament starts.</div>`;
+    return;
+  }
+
+  const pickedNames  = new Set(Object.values(PICKS).flatMap(p => p.golfers));
+  const captainNames = new Set(Object.values(PICKS).map(p => p.captain).filter(Boolean));
+
+  let html = `<div class="card">
+    <div class="card-header field-row field-header">
+      <span>#</span><span>Golfer</span><span>Score</span><span>Thru</span><span>Today</span>
+    </div>`;
+
+  const scoreCounts = {};
+  for (const [, g] of entries) scoreCounts[g.total] = (scoreCounts[g.total] || 0) + 1;
+
+  let pos = 1;
+  let cutInserted = false;
+  entries.forEach(([name, g], i) => {
+    if (i > 0 && g.total !== entries[i - 1][1].total) pos = i + 1;
+    const posStr   = scoreCounts[g.total] > 1 ? `T${pos}` : `${pos}`;
+    const isPicked = pickedNames.has(name);
+    const cls      = scoreCls(g.total);
+
+    if (!cutInserted && cutInfo != null && g.total > cutInfo.score && !g.isCut && !g.isWD) {
+      const cutLabel = fmtScore(cutInfo.score);
+      html += `<div class="cut-line">
+        <span class="cut-line-label">Projected Cut ${cutLabel}</span>
+      </div>`;
+      cutInserted = true;
+    }
+
+    const captainBadge = captainNames.has(name) ? `<span class="field-captain">C</span>` : "";
+    const todayCls = g.today !== "–" ? scoreCls(parseToPar(g.today)) : "";
+
+    html += `<div class="lb-row field-row ${isPicked ? "field-picked" : ""}">
+      <span class="lb-pos">${posStr}</span>
+      <span class="lb-name">${name}${captainBadge}</span>
+      <span class="lb-score ${cls}">${fmtScore(g.total)}</span>
+      <span class="field-thru">${g.thru}</span>
+      <span class="field-today ${todayCls}">${g.today}</span>
+    </div>`;
+  });
+
+  html += `</div>`;
+  document.getElementById('field-container').innerHTML = html;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────
+fetchScores();
+startCountdown();
+setInterval(fetchScores, REFRESH_MS);
+</script>
+
+</body>
+</html>
