@@ -191,6 +191,14 @@
       color: var(--ink);
     }
 
+    .golfer-odds {
+      margin-left: auto;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #999;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+
     .badge {
       font-size: 0.58rem;
       font-weight: 700;
@@ -472,12 +480,14 @@ for (const [sweeper, { golfers, captain }] of Object.entries(PICKS)) {
 // CONFIG
 // ─────────────────────────────────────────────────────────────────
 const API_URL    = "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga";
+const ODDS_URL   = "https://api.the-odds-api.com/v4/sports/golf_pga_championship_winner/odds/?regions=us&markets=outrights&oddsFormat=american&apiKey=5f69a630894732a667d1016a52df788c";
 const REFRESH_MS = 10 * 60 * 1000; // 10 minutes
 
 // ─────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────
 let golferData     = {};
+let oddsData       = {};
 let cutInfo        = null;
 let activeSweeper  = null;
 let activeTab      = 'field';
@@ -504,6 +514,26 @@ async function fetchScores() {
   } catch (err) {
     console.error("[pga-draft] Fetch error:", err);
     document.getElementById("meta").textContent = "Error fetching scores — retrying in 10 min";
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ODDS FETCH — runs once on load
+// ─────────────────────────────────────────────────────────────────
+async function fetchOdds() {
+  try {
+    const res = await fetch(ODDS_URL);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.length) return;
+    const bm = data[0].bookmakers.find(b => b.key === 'draftkings') ?? data[0].bookmakers[0];
+    if (!bm) return;
+    oddsData = {};
+    for (const o of bm.markets[0].outcomes) {
+      oddsData[o.name] = toFractional(o.price);
+    }
+  } catch (err) {
+    console.warn('[pga-draft] Odds fetch failed:', err);
   }
 }
 
@@ -659,6 +689,7 @@ function renderDetail(key) {
     const isWD      = g?.isWD      ?? false;
     const isWinner  = g?.isWinner  ?? false;
 
+    const oddsStr = getOdds(name);
     html += `<div class="golfer-row ${isCaptain ? "is-captain" : ""}">
       <div class="golfer-top">
         <span class="golfer-name">${name}</span>
@@ -666,6 +697,7 @@ function renderDetail(key) {
         ${isWinner  ? `<span class="badge badge-win">WIN</span>` : ""}
         ${isCut     ? `<span class="badge badge-mc">MC</span>` : ""}
         ${isWD      ? `<span class="badge badge-wd">WD</span>` : ""}
+        ${oddsStr   ? `<span class="golfer-odds">${oddsStr}</span>` : ""}
       </div>
       <div class="rounds">`;
 
@@ -759,6 +791,29 @@ function fmtScore(val) {
 function scoreCls(val) {
   if (val == null) return "";
   return val < 0 ? "score-under" : val > 0 ? "score-over" : "score-even";
+}
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+function toFractional(american) {
+  if (!american && american !== 0) return null;
+  const num = american > 0 ? american : 100;
+  const den = american > 0 ? 100 : Math.abs(american);
+  const g = gcd(num, den);
+  return `${num / g}/${den / g}`;
+}
+
+function getOdds(pickName) {
+  if (oddsData[pickName]) return oddsData[pickName];
+  // Strip accents (Åberg → Aberg)
+  const stripped = pickName.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  if (oddsData[stripped]) return oddsData[stripped];
+  // Last-name fallback
+  const lastName = pickName.split(' ').at(-1).toLowerCase();
+  for (const [name, odds] of Object.entries(oddsData)) {
+    if (name.split(' ').at(-1).toLowerCase() === lastName) return odds;
+  }
+  return null;
 }
 
 function fmtThru(raw, status, currentRoundGross) {
@@ -874,6 +929,7 @@ function renderFieldLeaderboard() {
 // INIT
 // ─────────────────────────────────────────────────────────────────
 fetchScores();
+fetchOdds();
 startCountdown();
 setInterval(fetchScores, REFRESH_MS);
 </script>
