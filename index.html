@@ -303,20 +303,6 @@
     .tab.active { color: #fff; border-bottom: 2px solid var(--gold); margin-bottom: -2px; }
     .tab:hover  { color: #fff; }
 
-    /* ── Official link ── */
-    .official-link {
-      text-align: center;
-      padding: 12px 0 4px;
-    }
-    .official-link a {
-      font-size: 0.7rem;
-      color: #aaa;
-      text-decoration: none;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-    .official-link a:hover { color: var(--navy); }
-
     /* ── Field leaderboard ── */
     .field-row  { grid-template-columns: 36px 1fr 52px 72px 48px; }
     .field-picked { background: #e8edf5; }
@@ -815,15 +801,16 @@ function fmtThru(raw, status, currentRoundGross) {
 function updateMeta() {
   const metaEl = document.getElementById("meta");
   if (!metaEl || !lastUpdated) return;
-  const timeStr = lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const timeStr = lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  const officialLink = `<a href="https://www.pgachampionship.com/leaderboard" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Official ↗</a>`;
   if (!nextRefreshAt) {
-    metaEl.textContent = `Last updated ${timeStr}`;
+    metaEl.innerHTML = `Updated ${timeStr} · ${officialLink}`;
     return;
   }
   const remaining = Math.max(0, nextRefreshAt - Date.now());
   const mins = Math.floor(remaining / 60000);
   const secs = Math.floor((remaining % 60000) / 1000);
-  metaEl.textContent = `Updated ${timeStr} · next refresh ${mins}:${String(secs).padStart(2, "0")}`;
+  metaEl.innerHTML = `Updated ${timeStr} · next refresh ${mins}:${String(secs).padStart(2, "0")} · ${officialLink}`;
 }
 
 function startCountdown() {
@@ -898,10 +885,7 @@ function renderFieldLeaderboard() {
     </div>`;
   });
 
-  html += `</div>
-  <div class="official-link">
-    <a href="https://www.pgachampionship.com/leaderboard" target="_blank" rel="noopener">Official leaderboard ↗</a>
-  </div>`;
+  html += `</div>`;
   document.getElementById('field-container').innerHTML = html;
 }
 
