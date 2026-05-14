@@ -534,12 +534,15 @@ function parseScores(data) {
 
     const todayVal = (!(isCut || isWD) && cri != null && rounds[cri]) ? rounds[cri].value : null;
 
+    const isTeeTime = /^\d{4}-\d{2}-\d{2}T/.test(thruRaw);
+
     golferData[name] = {
       total:        totalVal,
       totalDisplay: fmtScore(totalVal),
       rounds,
       thru:         fmtThru(thruRaw, statusStr, currentRoundGross),
       today:        todayVal != null ? fmtScore(todayVal) : "–",
+      teeTimeMs:    isTeeTime ? new Date(thruRaw).getTime() : null,
       isCut,
       isWD,
       isWinner:     comp.winner === true,
@@ -796,8 +799,12 @@ function switchTab(tab) {
 // FIELD LEADERBOARD
 // ─────────────────────────────────────────────────────────────────
 function renderFieldLeaderboard() {
-  const entries = Object.entries(golferData)
-    .sort((a, b) => a[1].total - b[1].total);
+  const hasStarted = Object.values(golferData).some(g => g.rounds.length > 0);
+  const entries = Object.entries(golferData).sort((a, b) =>
+    hasStarted
+      ? a[1].total - b[1].total
+      : (a[1].teeTimeMs ?? Infinity) - (b[1].teeTimeMs ?? Infinity)
+  );
 
   if (entries.length === 0) {
     document.getElementById('field-container').innerHTML =
