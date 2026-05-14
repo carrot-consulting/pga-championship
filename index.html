@@ -442,19 +442,17 @@ const PICKS = {
   }
 };
 
-// ─────────────────────────────────────────────────────────────────
-// SHORT NAMES — displayed in field leaderboard Player column
-// ─────────────────────────────────────────────────────────────────
-const SHORT_NAMES = {
-  "Robbie": "Rob",
-  "Simo":   "Simo",
-  "Mike":   "Mike",
-  "OJ":     "OJ",
-  "JW":     "JW",
-  "Fred":   "Fred",
-  "Liam":   "Liam",
-  "Toz":    "Toz"
-};
+// Exceptions only — all other sweeper keys display as-is
+const SHORT_NAMES = { "Robbie": "Rob" };
+
+// Derived from PICKS once — golfer name → sweeper display name, plus captain set
+const GOLFER_OWNER  = {};
+const CAPTAIN_NAMES = new Set();
+for (const [sweeper, { golfers, captain }] of Object.entries(PICKS)) {
+  const label = SHORT_NAMES[sweeper] ?? sweeper;
+  for (const name of golfers) GOLFER_OWNER[name] = label;
+  if (captain) CAPTAIN_NAMES.add(captain);
+}
 
 // ─────────────────────────────────────────────────────────────────
 // CONFIG
@@ -807,15 +805,6 @@ function renderFieldLeaderboard() {
     return;
   }
 
-  // Build reverse lookup: golfer name → sweeper short name
-  const golferOwner = {};
-  for (const [sweeper, { golfers }] of Object.entries(PICKS)) {
-    for (const name of golfers) {
-      golferOwner[name] = SHORT_NAMES[sweeper] ?? sweeper;
-    }
-  }
-
-  const captainNames = new Set(Object.values(PICKS).map(p => p.captain).filter(Boolean));
 
   let html = `<div class="card">
     <div class="card-header field-row field-header">
@@ -830,7 +819,7 @@ function renderFieldLeaderboard() {
   entries.forEach(([name, g], i) => {
     if (i > 0 && g.total !== entries[i - 1][1].total) pos = i + 1;
     const posStr   = scoreCounts[g.total] > 1 ? `T${pos}` : `${pos}`;
-    const isPicked = name in golferOwner;
+    const isPicked = name in GOLFER_OWNER;
     const cls      = scoreCls(g.total);
 
     if (!cutInserted && cutInfo != null && g.total > cutInfo.score && !g.isCut && !g.isWD) {
@@ -841,8 +830,8 @@ function renderFieldLeaderboard() {
       cutInserted = true;
     }
 
-    const captainBadge = captainNames.has(name) ? `<span class="field-captain">C</span>` : "";
-    const owner = golferOwner[name] ?? "";
+    const captainBadge = CAPTAIN_NAMES.has(name) ? `<span class="field-captain">C</span>` : "";
+    const owner = GOLFER_OWNER[name] ?? "";
 
     html += `<div class="lb-row field-row ${isPicked ? "field-picked" : ""}">
       <span class="lb-pos">${posStr}</span>
