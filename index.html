@@ -847,12 +847,12 @@ function switchTab(tab) {
 // ─────────────────────────────────────────────────────────────────
 function renderFieldLeaderboard() {
   const entries = Object.entries(golferData).sort((a, b) => {
-    const aStarted = a[1].rounds.some(r => r.gross !== null);
-    const bStarted = b[1].rounds.some(r => r.gross !== null);
+    const aStarted = !a[1].teeTimeMs;
+    const bStarted = !b[1].teeTimeMs;
     if (aStarted && bStarted)   return a[1].total - b[1].total;
     if (aStarted && !bStarted)  return -1;
     if (!aStarted && bStarted)  return 1;
-    return (a[1].teeTimeMs ?? Infinity) - (b[1].teeTimeMs ?? Infinity);
+    return a[1].teeTimeMs - b[1].teeTimeMs;
   });
 
   if (entries.length === 0) {
