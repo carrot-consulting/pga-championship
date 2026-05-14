@@ -1,0 +1,9 @@
+.env
+CLAUDE.local.md
+.claude/settings.local.json
+node_modules/
+.mcp.json
+research-output/
+archives/
+.DS_Store
+projects/financial-planner/data/
