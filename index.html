@@ -304,13 +304,18 @@
     .tab:hover  { color: #fff; }
 
     /* ── Field leaderboard ── */
-    .field-row  { grid-template-columns: 36px 1fr 52px 72px 48px; }
+    .field-row  { grid-template-columns: 28px 1fr 42px 48px 40px 38px; }
     .field-picked { background: #e8edf5; }
-    .field-thru { font-size: 0.78rem; color: #888; text-align: right; }
-    .field-player { font-size: 0.72rem; font-weight: 600; color: var(--navy); text-align: right; }
+    .field-thru { font-size: 0.75rem; color: #888; text-align: right; }
+    .field-player { font-size: 0.68rem; font-weight: 600; color: var(--navy); text-align: right; }
+    .field-row .lb-name { font-size: 0.82rem; }
+    .field-row .lb-pos  { font-size: 0.75rem; }
+    .field-row .lb-score { font-size: 0.85rem; }
+    .field-rnd { font-size: 0.82rem; font-weight: 700; text-align: right; }
     .field-header span:nth-child(3),
     .field-header span:nth-child(4),
-    .field-header span:nth-child(5) { text-align: right; }
+    .field-header span:nth-child(5),
+    .field-header span:nth-child(6) { text-align: right; }
     .field-captain { font-size: 0.58rem; font-weight: 700; padding: 1px 4px; border-radius: 2px; background: var(--gold); color: #fff; margin-left: 4px; vertical-align: middle; letter-spacing: 0.06em; }
 
     /* ── Cut line ── */
@@ -564,13 +569,14 @@ function parseScores(data) {
     const isTeeTime = /^\d{4}-\d{2}-\d{2}T/.test(thruRaw);
 
     golferData[name] = {
-      total:     totalVal,
+      total:        totalVal,
       rounds,
-      thru:      fmtThru(thruRaw, statusStr, currentRoundGross),
-      teeTimeMs: isTeeTime ? new Date(thruRaw).getTime() : null,
+      currentRound: currentRound ?? null,
+      thru:         fmtThru(thruRaw, statusStr, currentRoundGross),
+      teeTimeMs:    isTeeTime ? new Date(thruRaw).getTime() : null,
       isCut,
       isWD,
-      isWinner:  comp.winner === true,
+      isWinner:     comp.winner === true,
     };
   }
 
@@ -849,7 +855,7 @@ function renderFieldLeaderboard() {
 
   let html = `<div class="card">
     <div class="card-header field-row field-header">
-      <span>#</span><span>Golfer</span><span>Thru</span><span>Score</span><span>Who</span>
+      <span>#</span><span>Golfer</span><span>Tot</span><span>Thru</span><span>Rnd</span><span>Who</span>
     </div>`;
 
   const scoreCounts = {};
@@ -874,11 +880,17 @@ function renderFieldLeaderboard() {
     const captainBadge = CAPTAIN_NAMES.has(name) ? `<span class="field-captain">C</span>` : "";
     const owner = GOLFER_OWNER[name] ?? "";
 
+    const rndIdx = g.currentRound != null ? g.currentRound - 1 : null;
+    const rndVal = (!g.isCut && !g.isWD && rndIdx != null && g.rounds[rndIdx]) ? g.rounds[rndIdx].value : null;
+    const rndStr = rndVal != null ? fmtScore(rndVal) : "–";
+    const rndCls = rndVal != null ? scoreCls(rndVal) : "";
+
     html += `<div class="lb-row field-row ${isPicked ? "field-picked" : ""}">
       <span class="lb-pos">${posStr}</span>
       <span class="lb-name">${name}${captainBadge}</span>
-      <span class="field-thru">${g.thru}</span>
       <span class="lb-score ${cls}">${fmtScore(g.total)}</span>
+      <span class="field-thru">${g.thru}</span>
+      <span class="field-rnd ${rndCls}">${rndStr}</span>
       <span class="field-player">${owner}</span>
     </div>`;
   });
