@@ -249,6 +249,9 @@
       box-shadow: 0 0 0 1px rgba(201,168,76,0.15);
     }
 
+    .round-pill.is-total { background: #eef1f8; }
+    .round-pill.is-total .round-value { font-size: 0.92rem; }
+
     .round-label {
       font-size: 0.58rem;
       font-weight: 700;
@@ -699,7 +702,7 @@ function renderDetail(key, sweeperScore = calcSweeper(key)) {
     if (isWinner) { adjTot -= 5; totNote = `<div class="multiplier-note win">-5 WIN</div>`; }
     const r4val = g?.rounds[3]?.value;
     if (isCaptain && r4val != null) { adjTot += r4val; totNote += `<div class="multiplier-note">+R4×2</div>`; }
-    html += `<div class="round-pill">
+    html += `<div class="round-pill is-total">
       <div class="round-label">Tot</div>
       <div class="round-value ${roundCls(adjTot)}">${g ? fmtScore(adjTot) : "–"}</div>
       ${totNote}
@@ -708,10 +711,10 @@ function renderDetail(key, sweeperScore = calcSweeper(key)) {
     ["R1","R2","R3","R4"].forEach((label, idx) => {
       const r = g?.rounds[idx];
       const isCaptainR4 = isCaptain && idx === 3;
-      const hasScore = r && r.value !== null;
-      const displayVal = hasScore ? fmtScore(isCaptainR4 ? r.value * 2 : r.value) : "–";
-      const rCls      = hasScore ? roundCls(r.value) : "empty";
-      const xNote     = (hasScore && isCaptainR4) ? `<div class="multiplier-note">&#215;2</div>` : "";
+      if (!r || !r.gross) return;
+      const displayVal = fmtScore(isCaptainR4 ? r.value * 2 : r.value);
+      const rCls       = roundCls(r.value);
+      const xNote      = isCaptainR4 ? `<div class="multiplier-note">&#215;2</div>` : "";
       html += `<div class="round-pill ${isCaptainR4 ? "captain-r4" : ""}">
         <div class="round-label">${label}</div>
         <div class="round-value ${rCls}">${displayVal}</div>
