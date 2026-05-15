@@ -604,7 +604,7 @@ function calcSweeper(key) {
   for (const name of golfers) {
     const g = golferData[name];
     let score = g?.total ?? 0;
-    if (g?.isCut)    score += 5;
+    if (g?.isCut)    score += 3;
     if (g?.isWinner) score -= 5;
     total += score;
   }
@@ -698,7 +698,7 @@ function renderDetail(key, sweeperScore = calcSweeper(key)) {
     const rawTot = g?.total ?? 0;
     let adjTot = rawTot;
     let totNote = "";
-    if (isCut)    { adjTot += 5; totNote = `<div class="multiplier-note mc">+5 MC</div>`; }
+    if (isCut)    { adjTot += 3; totNote = `<div class="multiplier-note mc">+3 MC</div>`; }
     if (isWinner) { adjTot -= 5; totNote = `<div class="multiplier-note win">-5 WIN</div>`; }
     const r4val = g?.rounds[3]?.value;
     if (isCaptain && r4val != null) { adjTot += r4val; totNote += `<div class="multiplier-note">+R4×2</div>`; }
