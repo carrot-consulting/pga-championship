@@ -308,10 +308,10 @@
     .field-picked { background: #e8edf5; }
     .field-thru { font-size: 0.75rem; color: #888; text-align: right; }
     .field-player { font-size: 0.68rem; font-weight: 600; color: var(--navy); text-align: right; }
-    .field-row .lb-name { font-size: 0.82rem; }
+    .field-row .lb-name, .field-rnd { font-size: 0.82rem; }
     .field-row .lb-pos  { font-size: 0.75rem; }
     .field-row .lb-score { font-size: 0.85rem; }
-    .field-rnd { font-size: 0.82rem; font-weight: 700; text-align: right; }
+    .field-rnd { font-weight: 700; text-align: right; }
     .field-header span:nth-child(3),
     .field-header span:nth-child(4),
     .field-header span:nth-child(5),
@@ -485,6 +485,8 @@ let nextRefreshAt  = null;
 let countdownTimer = null;
 let lastUpdated    = null;
 
+const OFFICIAL_LINK = `<a href="https://www.pgachampionship.com/leaderboard" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Official ↗</a>`;
+
 // ─────────────────────────────────────────────────────────────────
 // FETCH
 // ─────────────────────────────────────────────────────────────────
@@ -569,14 +571,14 @@ function parseScores(data) {
     const isTeeTime = /^\d{4}-\d{2}-\d{2}T/.test(thruRaw);
 
     golferData[name] = {
-      total:        totalVal,
+      total:             totalVal,
       rounds,
-      currentRound: currentRound ?? null,
-      thru:         fmtThru(thruRaw, statusStr, currentRoundGross),
-      teeTimeMs:    isTeeTime ? new Date(thruRaw).getTime() : null,
+      currentRoundValue: (!isCut && !isWD && cri != null && rounds[cri]) ? rounds[cri].value : null,
+      thru:              fmtThru(thruRaw, statusStr, currentRoundGross),
+      teeTimeMs:         isTeeTime ? new Date(thruRaw).getTime() : null,
       isCut,
       isWD,
-      isWinner:     comp.winner === true,
+      isWinner:          comp.winner === true,
     };
   }
 
@@ -808,20 +810,22 @@ function updateMeta() {
   const metaEl = document.getElementById("meta");
   if (!metaEl || !lastUpdated) return;
   const timeStr = lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
-  const officialLink = `<a href="https://www.pgachampionship.com/leaderboard" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Official ↗</a>`;
-  if (!nextRefreshAt) {
-    metaEl.innerHTML = `Updated ${timeStr} · ${officialLink}`;
-    return;
-  }
+  metaEl.innerHTML = `Updated ${timeStr} · next refresh <span id="meta-countdown"></span> · ${OFFICIAL_LINK}`;
+  updateCountdown();
+}
+
+function updateCountdown() {
+  const el = document.getElementById("meta-countdown");
+  if (!el || !nextRefreshAt) return;
   const remaining = Math.max(0, nextRefreshAt - Date.now());
   const mins = Math.floor(remaining / 60000);
   const secs = Math.floor((remaining % 60000) / 1000);
-  metaEl.innerHTML = `Updated ${timeStr} · next refresh ${mins}:${String(secs).padStart(2, "0")} · ${officialLink}`;
+  el.textContent = `${mins}:${String(secs).padStart(2, "0")}`;
 }
 
 function startCountdown() {
   if (countdownTimer) clearInterval(countdownTimer);
-  countdownTimer = setInterval(updateMeta, 1000);
+  countdownTimer = setInterval(updateCountdown, 1000);
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -880,8 +884,7 @@ function renderFieldLeaderboard() {
     const captainBadge = CAPTAIN_NAMES.has(name) ? `<span class="field-captain">C</span>` : "";
     const owner = GOLFER_OWNER[name] ?? "";
 
-    const rndIdx = g.currentRound != null ? g.currentRound - 1 : null;
-    const rndVal = (!g.isCut && !g.isWD && rndIdx != null && g.rounds[rndIdx]) ? g.rounds[rndIdx].value : null;
+    const rndVal = g.currentRoundValue;
     const rndStr = rndVal != null ? fmtScore(rndVal) : "–";
     const rndCls = rndVal != null ? scoreCls(rndVal) : "";
 
