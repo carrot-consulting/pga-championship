@@ -711,10 +711,10 @@ function renderDetail(key, sweeperScore = calcSweeper(key)) {
     ["R1","R2","R3","R4"].forEach((label, idx) => {
       const r = g?.rounds[idx];
       const isCaptainR4 = isCaptain && idx === 3;
-      if (!r || !r.gross) return;
-      const displayVal = fmtScore(isCaptainR4 ? r.value * 2 : r.value);
-      const rCls       = roundCls(r.value);
-      const xNote      = isCaptainR4 ? `<div class="multiplier-note">&#215;2</div>` : "";
+      const hasScore = r && r.gross > 0;
+      const displayVal = hasScore ? fmtScore(isCaptainR4 ? r.value * 2 : r.value) : "–";
+      const rCls      = hasScore ? roundCls(r.value) : "empty";
+      const xNote     = (hasScore && isCaptainR4) ? `<div class="multiplier-note">&#215;2</div>` : "";
       html += `<div class="round-pill ${isCaptainR4 ? "captain-r4" : ""}">
         <div class="round-label">${label}</div>
         <div class="round-value ${rCls}">${displayVal}</div>
