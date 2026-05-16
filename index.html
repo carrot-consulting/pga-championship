@@ -457,6 +457,9 @@ const PICKS = {
   }
 };
 
+const MC_PENALTY  = 3;
+const WIN_BONUS   = 5;
+
 // Exceptions only — all other sweeper keys display as-is
 const SHORT_NAMES = { "Robbie": "Rob" };
 
@@ -604,8 +607,8 @@ function calcSweeper(key) {
   for (const name of golfers) {
     const g = golferData[name];
     let score = g?.total ?? 0;
-    if (g?.isCut)    score += 3;
-    if (g?.isWinner) score -= 5;
+    if (g?.isCut)    score += MC_PENALTY;
+    if (g?.isWinner) score -= WIN_BONUS;
     total += score;
   }
 
@@ -698,8 +701,8 @@ function renderDetail(key, sweeperScore = calcSweeper(key)) {
     const rawTot = g?.total ?? 0;
     let adjTot = rawTot;
     let totNote = "";
-    if (isCut)    { adjTot += 3; totNote = `<div class="multiplier-note mc">+3 MC</div>`; }
-    if (isWinner) { adjTot -= 5; totNote = `<div class="multiplier-note win">-5 WIN</div>`; }
+    if (isCut)    { adjTot += MC_PENALTY; totNote = `<div class="multiplier-note mc">+${MC_PENALTY} MC</div>`; }
+    if (isWinner) { adjTot -= WIN_BONUS;  totNote = `<div class="multiplier-note win">-${WIN_BONUS} WIN</div>`; }
     const r4val = g?.rounds[3]?.value;
     if (isCaptain && r4val != null) { adjTot += r4val; totNote += `<div class="multiplier-note">+R4×2</div>`; }
     html += `<div class="round-pill is-total">
