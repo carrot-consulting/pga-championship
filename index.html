@@ -366,18 +366,18 @@
 </header>
 
 <div class="tabs">
-  <button class="tab" data-tab="sweepstake" onclick="switchTab('sweepstake')">Sweepstake</button>
-  <button class="tab active" data-tab="field" onclick="switchTab('field')">Live Leaderboard</button>
+  <button class="tab active" data-tab="sweepstake" onclick="switchTab('sweepstake')">Sweepstake</button>
+  <button class="tab" data-tab="field" onclick="switchTab('field')">Live Leaderboard</button>
 </div>
 
 <main>
-  <div id="tab-sweepstake" hidden>
+  <div id="tab-sweepstake">
     <div id="leaderboard-container">
       <div class="loading">Loading scores...</div>
     </div>
     <div id="team-detail"></div>
   </div>
-  <div id="tab-field">
+  <div id="tab-field" hidden>
     <div id="field-container">
       <div class="loading">Loading scores...</div>
     </div>
@@ -483,7 +483,7 @@ let golferData     = {};
 let oddsData       = {};
 let cutInfo        = null;
 let activeSweeper  = null;
-let activeTab      = 'field';
+let activeTab      = 'sweepstake';
 let nextRefreshAt  = null;
 let countdownTimer = null;
 let lastUpdated    = null;
